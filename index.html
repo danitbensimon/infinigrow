@@ -84,21 +84,21 @@
         </div>
 
         <div class="dashboard">
-            <div class="chart-container">
+            <div class="chart-container" data-correct-piece="barPiece">
                 <canvas id="barChart"></canvas>
-                <div class="draggable" id="barPiece" draggable="true" style="top: 50%; left: 30%;">Missing Bar</div>
+                <div class="draggable" id="barPiece" draggable="true" style="top: 50%; left: 30%;">Missing Bar (Value: 81)</div>
             </div>
-            <div class="chart-container">
+            <div class="chart-container" data-correct-piece="piePiece">
                 <canvas id="pieChart"></canvas>
-                <div class="draggable" id="piePiece" draggable="true" style="top: 30%; left: 50%;">Missing Slice</div>
+                <div class="draggable" id="piePiece" draggable="true" style="top: 30%; left: 50%;">Missing Slice (Value: 45)</div>
             </div>
-            <div class="chart-container">
+            <div class="chart-container" data-correct-piece="linePiece">
                 <canvas id="lineChart"></canvas>
-                <div class="draggable" id="linePiece" draggable="true" style="top: 40%; left: 40%;">Missing Point</div>
+                <div class="draggable" id="linePiece" draggable="true" style="top: 40%; left: 40%;">Missing Point (Value: 15)</div>
             </div>
-            <div class="chart-container">
+            <div class="chart-container" data-correct-piece="areaPiece">
                 <canvas id="areaChart"></canvas>
-                <div class="draggable" id="areaPiece" draggable="true" style="top: 20%; left: 30%;">Missing Area</div>
+                <div class="draggable" id="areaPiece" draggable="true" style="top: 20%; left: 30%;">Missing Area (Value: 75)</div>
             </div>
         </div>
     </div>
@@ -112,7 +112,7 @@
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                     datasets: [{
                         label: 'Revenue',
-                        data: [65, 59, 80, 0, 56, 55], // Missing value for April
+                        data: [65, 59, 80, 0, 56, 55], // Missing value for April (81)
                         backgroundColor: '#2196F3'
                     }]
                 },
@@ -132,7 +132,7 @@
                 data: {
                     labels: ['Direct', 'Social', 'Email'],
                     datasets: [{
-                        data: [35, 0, 20], // Missing value for Social
+                        data: [35, 0, 20], // Missing value for Social (45)
                         backgroundColor: ['#4CAF50', 'rgba(33, 150, 243, 0.1)', '#FF9800'],
                         borderColor: ['#4CAF50', '#2196F3', '#FF9800'],
                         borderWidth: 1
@@ -155,7 +155,7 @@
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                     datasets: [{
                         label: 'Conversion',
-                        data: [12, 19, 0, 15, 22, 13], // Missing value for March
+                        data: [12, 19, 0, 15, 22, 13], // Missing value for March (15)
                         borderColor: '#FF9800',
                         tension: 0.4
                     }]
@@ -177,7 +177,7 @@
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                     datasets: [{
                         label: 'Engagement',
-                        data: [45, 59, 80, 0, 66, 85], // Missing value between March and April
+                        data: [45, 59, 80, 0, 66, 85], // Missing value between March and April (75)
                         borderColor: '#9C27B0',
                         backgroundColor: 'rgba(156,39,176,0.2)',
                         fill: true
@@ -215,10 +215,36 @@
             chartContainers.forEach(container => {
                 container.addEventListener('dragover', (e) => {
                     e.preventDefault();
+                });
+
+                container.addEventListener('drop', (e) => {
+                    e.preventDefault();
                     const draggable = document.querySelector('.dragging');
-                    container.appendChild(draggable);
+                    if (container.dataset.correctPiece === draggable.id) {
+                        container.appendChild(draggable);
+                        draggable.style.position = 'relative';
+                        draggable.style.top = '0';
+                        draggable.style.left = '0';
+                        checkWinCondition();
+                    } else {
+                        alert('Wrong placement! Try again.');
+                    }
                 });
             });
+        }
+
+        function checkWinCondition() {
+            const chartContainers = document.querySelectorAll('.chart-container');
+            let allCorrect = true;
+            chartContainers.forEach(container => {
+                const correctPiece = container.querySelector(`#${container.dataset.correctPiece}`);
+                if (!correctPiece) {
+                    allCorrect = false;
+                }
+            });
+            if (allCorrect) {
+                alert('Congratulations! You fixed all the data! You won Infinigrow Swag!');
+            }
         }
 
         function startTimer() {
