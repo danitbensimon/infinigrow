@@ -63,24 +63,55 @@
             position: relative;
         }
 
-        /* Draggable pieces */
-        .draggable-piece {
+        /* Draggable missing pieces styled */
+        .missing-piece {
+            width: 60px;
+            height: 60px;
             position: absolute;
             cursor: grab;
             z-index: 100;
-            pointer-events: auto;
         }
 
-        /* Define the styles for each draggable piece */
-        .bar-piece, .pie-piece, .line-piece, .area-piece {
-            transition: all 0.3s ease;
+        .missing-bar-piece {
+            width: 30px;
+            height: 80px;
+            background: #2196F3;
+            left: 50%;
+            top: 70%;
         }
 
-        .draggable-piece:hover {
+        .missing-pie-piece {
+            background: #2196F3;
+            clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 50%);
+            left: 60%;
+            top: 30%;
+        }
+
+        .missing-line-piece {
+            width: 80px;
+            height: 40px;
+            left: 55%;
+            top: 55%;
+        }
+
+        .missing-line-piece::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #FF9800;
+            transform: rotate(30deg);
+            transform-origin: left center;
+        }
+
+        /* Hover and dragging effects */
+        .missing-piece:hover {
             filter: brightness(1.1);
         }
 
-        .draggable-piece.dragging {
+        .missing-piece.dragging {
             opacity: 0.8;
             cursor: grabbing;
         }
@@ -97,26 +128,25 @@
         </div>
 
         <div class="dashboard">
-            <!-- Bar Chart with gap and misplaced pieces -->
+            <!-- Bar Chart with missing piece -->
             <div class="chart-container">
                 <canvas id="revenueChart"></canvas>
-                <div class="draggable-piece pie-piece" data-type="pie"></div>
-                <div class="draggable-piece area-piece" data-type="area"></div>
+                <div class="missing-piece missing-bar-piece" data-type="bar"></div>
             </div>
 
-            <!-- Pie Chart with gap and misplaced piece -->
+            <!-- Pie Chart with missing piece -->
             <div class="chart-container">
                 <canvas id="usersChart"></canvas>
-                <div class="draggable-piece line-piece" data-type="line"></div>
+                <div class="missing-piece missing-pie-piece" data-type="pie"></div>
             </div>
 
-            <!-- Line Chart with gap and misplaced piece -->
+            <!-- Line Chart with missing piece -->
             <div class="chart-container">
                 <canvas id="conversionChart"></canvas>
-                <div class="draggable-piece bar-piece" data-type="bar"></div>
+                <div class="missing-piece missing-line-piece" data-type="line"></div>
             </div>
 
-            <!-- Area Chart with gap -->
+            <!-- Area Chart -->
             <div class="chart-container">
                 <canvas id="engagementChart"></canvas>
             </div>
@@ -133,7 +163,7 @@
         }
 
         function createCharts() {
-            // Revenue Chart (Bar) with gap
+            // Bar chart
             charts.revenue = new Chart(document.getElementById('revenueChart'), {
                 type: 'bar',
                 data: {
@@ -151,14 +181,14 @@
                 }
             });
 
-            // Users Chart (Pie) with missing slice (transparent section)
+            // Pie chart with missing slice
             charts.users = new Chart(document.getElementById('usersChart'), {
                 type: 'pie',
                 data: {
                     labels: ['Direct', 'Social', 'Email'],
                     datasets: [{
                         data: [35, 25, 20],
-                        backgroundColor: ['#4CAF50', 'transparent', '#FF9800'] // Missing middle section
+                        backgroundColor: ['#4CAF50', 'transparent', '#FF9800']
                     }]
                 },
                 options: {
@@ -168,7 +198,7 @@
                 }
             });
 
-            // Conversion Chart (Line) with gap
+            // Line chart
             charts.conversion = new Chart(document.getElementById('conversionChart'), {
                 type: 'line',
                 data: {
@@ -187,14 +217,14 @@
                 }
             });
 
-            // Engagement Chart (Area) with gap
+            // Area chart
             charts.engagement = new Chart(document.getElementById('engagementChart'), {
                 type: 'line',
                 data: {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                     datasets: [{
                         label: 'Engagement',
-                        data: [45, 59, null, 75, 66, 85], // Gap between Mar-Apr
+                        data: [45, 59, null, 75, 66, 85],
                         borderColor: '#9C27B0',
                         backgroundColor: 'rgba(156,39,176,0.2)',
                         fill: true
@@ -209,7 +239,7 @@
         }
 
         function initDragAndDrop() {
-            const pieces = document.querySelectorAll('.draggable-piece');
+            const pieces = document.querySelectorAll('.missing-piece');
             
             pieces.forEach(piece => {
                 piece.addEventListener('mousedown', startDragging);
@@ -240,7 +270,7 @@
         }
 
         function checkPlacement(piece) {
-            // Logic for checking if the draggable piece is in the correct gap
+            // Logic for snapping into correct position if in the right spot
         }
 
         function startTimer() {
@@ -249,7 +279,7 @@
             
             const interval = setInterval(() => {
                 timeLeft--;
-                timer.style.width = `${(timeLeft/30) * 100}%`;
+                timer.style.width = `${(timeLeft / 30) * 100}%`;
                 
                 if (timeLeft <= 0) {
                     clearInterval(interval);
