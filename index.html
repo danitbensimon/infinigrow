@@ -134,9 +134,9 @@
                 data: {
                     labels: ['Direct', 'Social', 'Email'],
                     datasets: [{
-                        data: [35, null, 20], // Missing slice for Social
-                        backgroundColor: ['#4CAF50', 'rgba(0, 0, 0, 0)', '#FF9800'],
-                        borderColor: ['#4CAF50', '#2196F3', '#FF9800'],
+                        data: [35, 20, null], // Missing slice for Email
+                        backgroundColor: ['#4CAF50', '#FF9800', 'rgba(0, 0, 0, 0)'],
+                        borderColor: ['#4CAF50', '#FF9800', '#2196F3'],
                         borderWidth: 1
                     }]
                 },
@@ -217,57 +217,4 @@
                 });
             });
 
-            chartContainers.forEach(container => {
-                container.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                });
-
-                container.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    const draggable = document.querySelector('.dragging');
-                    if (container.dataset.correctPiece === draggable.id) {
-                        container.appendChild(draggable);
-                        draggable.style.position = 'relative';
-                        draggable.style.top = '0';
-                        draggable.style.left = '0';
-                        checkWinCondition();
-                    } else {
-                        alert('Wrong placement! Try again.');
-                    }
-                });
-            });
-        }
-
-        function checkWinCondition() {
-            const chartContainers = document.querySelectorAll('.chart-container');
-            let allCorrect = true;
-            chartContainers.forEach(container => {
-                const correctPiece = container.querySelector(`#${container.dataset.correctPiece}`);
-                if (!correctPiece) {
-                    allCorrect = false;
-                }
-            });
-            if (allCorrect) {
-                alert('Congratulations! You fixed all the data! You won Infinigrow Swag!');
-            }
-        }
-
-        function startTimer() {
-            let timeLeft = 30;
-            const timer = document.getElementById('timer');
-            
-            const interval = setInterval(() => {
-                timeLeft--;
-                timer.style.width = `${(timeLeft/30) * 100}%`;
-                
-                if (timeLeft <= 0) {
-                    clearInterval(interval);
-                    alert('Time is up! Try again.');
-                }
-            }, 1000);
-        }
-
-        window.onload = initGame;
-    </script>
-</body>
-</html>
+            chartContainers.forEach(cont
