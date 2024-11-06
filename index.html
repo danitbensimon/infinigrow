@@ -86,21 +86,22 @@
         <div class="dashboard">
             <div class="chart-container" data-correct-piece="barPiece">
                 <canvas id="barChart"></canvas>
-                <div class="draggable" id="barPiece" draggable="true" style="top: 50%; left: 30%;">Missing Bar (Value: 81)</div>
             </div>
             <div class="chart-container" data-correct-piece="piePiece">
                 <canvas id="pieChart"></canvas>
-                <div class="draggable" id="piePiece" draggable="true" style="top: 30%; left: 50%;">Missing Slice (Value: 45)</div>
             </div>
             <div class="chart-container" data-correct-piece="linePiece">
                 <canvas id="lineChart"></canvas>
-                <div class="draggable" id="linePiece" draggable="true" style="top: 40%; left: 40%;">Missing Point (Value: 15)</div>
             </div>
             <div class="chart-container" data-correct-piece="areaPiece">
                 <canvas id="areaChart"></canvas>
-                <div class="draggable" id="areaPiece" draggable="true" style="top: 20%; left: 30%;">Missing Area (Value: 75)</div>
             </div>
         </div>
+
+        <div class="draggable" id="barPiece" draggable="true">Missing Bar</div>
+        <div class="draggable" id="piePiece" draggable="true">Missing Slice</div>
+        <div class="draggable" id="linePiece" draggable="true">Missing Point</div>
+        <div class="draggable" id="areaPiece" draggable="true">Missing Area</div>
     </div>
 
     <script>
@@ -112,8 +113,8 @@
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                     datasets: [{
                         label: 'Revenue',
-                        data: [65, 59, 80, 0, 56, 55], // Missing value for April (81)
-                        backgroundColor: '#2196F3'
+                        data: [65, 59, 80, null, 56, 55], // Missing value for April
+                        backgroundColor: ['#2196F3', '#2196F3', '#2196F3', '#ffcc00', '#2196F3', '#2196F3']
                     }]
                 },
                 options: {
@@ -132,8 +133,8 @@
                 data: {
                     labels: ['Direct', 'Social', 'Email'],
                     datasets: [{
-                        data: [35, 0, 20], // Missing value for Social (45)
-                        backgroundColor: ['#4CAF50', 'rgba(33, 150, 243, 0.1)', '#FF9800'],
+                        data: [35, null, 20], // Missing value for Social
+                        backgroundColor: ['#4CAF50', '#ffcc00', '#FF9800'],
                         borderColor: ['#4CAF50', '#2196F3', '#FF9800'],
                         borderWidth: 1
                     }]
@@ -155,8 +156,9 @@
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                     datasets: [{
                         label: 'Conversion',
-                        data: [12, 19, 0, 15, 22, 13], // Missing value for March (15)
+                        data: [12, 19, null, 15, 22, 13], // Missing value for March
                         borderColor: '#FF9800',
+                        pointBackgroundColor: ['#FF9800', '#FF9800', '#ffcc00', '#FF9800', '#FF9800', '#FF9800'],
                         tension: 0.4
                     }]
                 },
@@ -177,9 +179,9 @@
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                     datasets: [{
                         label: 'Engagement',
-                        data: [45, 59, 80, 0, 66, 85], // Missing value between March and April (75)
+                        data: [45, 59, 80, null, 66, 85], // Missing value between March and April
                         borderColor: '#9C27B0',
-                        backgroundColor: 'rgba(156,39,176,0.2)',
+                        backgroundColor: ['rgba(156,39,176,0.2)', 'rgba(156,39,176,0.2)', 'rgba(156,39,176,0.2)', 'rgba(255,204,0,0.2)', 'rgba(156,39,176,0.2)', 'rgba(156,39,176,0.2)'],
                         fill: true
                     }]
                 },
