@@ -1,142 +1,264 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Drag-and-Drop Puzzle Game</title>
-<style>
-    /* Basic styling */
-    body {
-        font-family: Arial, sans-serif;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    h1 {
-        margin: 20px;
-    }
-    #timer {
-        font-size: 20px;
-        margin: 10px;
-    }
-    .chart-container {
-        display: flex;
-        justify-content: space-around;
-        width: 80%;
-        margin-top: 20px;
-    }
-    .chart {
-        width: 150px;
-        height: 150px;
-        border: 1px solid #ccc;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        font-size: 20px;
-        font-weight: bold;
-    }
-    .draggable {
-        cursor: pointer;
-        position: absolute;
-        padding: 10px;
-        background-color: #ffa;
-        border: 1px solid #ccc;
-    }
-</style>
+    <title>Fix the Messy Data</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 16px;
+            font-family: system-ui, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #1a1a1a;
+        }
+
+        .timer-bar {
+            height: 6px;
+            background: #eee;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .timer-progress {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #4CAF50, #2196F3);
+            transition: width 1s linear;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .chart-container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            height: 200px;
+            border: 1px solid #e0e0e0;
+            position: relative;
+        }
+
+        /* Draggable pieces */
+        .draggable-piece {
+            position: absolute;
+            cursor: grab;
+            z-index: 100;
+            pointer-events: auto;
+        }
+
+        /* Define the styles for each draggable piece */
+        .bar-piece, .pie-piece, .line-piece, .area-piece {
+            transition: all 0.3s ease;
+        }
+
+        .draggable-piece:hover {
+            filter: brightness(1.1);
+        }
+
+        .draggable-piece.dragging {
+            opacity: 0.8;
+            cursor: grabbing;
+        }
+    </style>
 </head>
 <body>
+    <div class="game-container">
+        <div class="header">
+            <h1>Fix the Messy Data</h1>
+        </div>
 
-<h1>Fix the Charts Puzzle Game</h1>
-<div id="timer">Time left: <span id="timeLeft">30</span> seconds</div>
+        <div class="timer-bar">
+            <div class="timer-progress" id="timer"></div>
+        </div>
 
-<div class="chart-container">
-    <!-- Each chart has a placeholder for a missing piece -->
-    <div class="chart" id="barChart" ondrop="drop(event)" ondragover="allowDrop(event)">Bar Chart</div>
-    <div class="chart" id="pieChart" ondrop="drop(event)" ondragover="allowDrop(event)">Pie Chart</div>
-    <div class="chart" id="lineChart" ondrop="drop(event)" ondragover="allowDrop(event)">Line Chart</div>
-    <div class="chart" id="areaChart" ondrop="drop(event)" ondragover="allowDrop(event)">Area Chart</div>
-</div>
+        <div class="dashboard">
+            <!-- Bar Chart with gap and misplaced pieces -->
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+                <div class="draggable-piece pie-piece" data-type="pie"></div>
+                <div class="draggable-piece area-piece" data-type="area"></div>
+            </div>
 
-<!-- Draggable misplaced pieces -->
-<div class="chart-container">
-    <div id="barPiece" class="draggable" draggable="true" ondragstart="drag(event)">Bar Piece</div>
-    <div id="piePiece" class="draggable" draggable="true" ondragstart="drag(event)">Pie Piece</div>
-    <div id="linePiece" class="draggable" draggable="true" ondragstart="drag(event)">Line Piece</div>
-    <div id="areaPiece" class="draggable" draggable="true" ondragstart="drag(event)">Area Piece</div>
-</div>
+            <!-- Pie Chart with gap and misplaced piece -->
+            <div class="chart-container">
+                <canvas id="usersChart"></canvas>
+                <div class="draggable-piece line-piece" data-type="line"></div>
+            </div>
 
-<!-- JavaScript for game logic -->
-<script>
-    let timer;
-    let timeLeft = 30;
+            <!-- Line Chart with gap and misplaced piece -->
+            <div class="chart-container">
+                <canvas id="conversionChart"></canvas>
+                <div class="draggable-piece bar-piece" data-type="bar"></div>
+            </div>
 
-    // Start the timer
-    function startTimer() {
-        timer = setInterval(function() {
-            timeLeft--;
-            document.getElementById('timeLeft').innerText = timeLeft;
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                alert("Time's up! Try again.");
-                resetGame();
+            <!-- Area Chart with gap -->
+            <div class="chart-container">
+                <canvas id="engagementChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let charts = {};
+
+        function initGame() {
+            createCharts();
+            initDragAndDrop();
+            startTimer();
+        }
+
+        function createCharts() {
+            // Revenue Chart (Bar) with gap
+            charts.revenue = new Chart(document.getElementById('revenueChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [65, 59, null, 81, 56, 55], // Gap in March
+                        backgroundColor: '#2196F3'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Users Chart (Pie) with missing slice (transparent section)
+            charts.users = new Chart(document.getElementById('usersChart'), {
+                type: 'pie',
+                data: {
+                    labels: ['Direct', 'Social', 'Email'],
+                    datasets: [{
+                        data: [35, 25, 20],
+                        backgroundColor: ['#4CAF50', 'transparent', '#FF9800'] // Missing middle section
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Conversion Chart (Line) with gap
+            charts.conversion = new Chart(document.getElementById('conversionChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Conversion',
+                        data: [12, 19, null, 15, 22, 13], // Gap between Mar-Apr
+                        borderColor: '#FF9800',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Engagement Chart (Area) with gap
+            charts.engagement = new Chart(document.getElementById('engagementChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Engagement',
+                        data: [45, 59, null, 75, 66, 85], // Gap between Mar-Apr
+                        borderColor: '#9C27B0',
+                        backgroundColor: 'rgba(156,39,176,0.2)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function initDragAndDrop() {
+            const pieces = document.querySelectorAll('.draggable-piece');
+            
+            pieces.forEach(piece => {
+                piece.addEventListener('mousedown', startDragging);
+            });
+
+            function startDragging(e) {
+                const piece = this;
+                piece.classList.add('dragging');
+                
+                const startX = e.clientX - piece.offsetLeft;
+                const startY = e.clientY - piece.offsetTop;
+
+                function movePiece(e) {
+                    piece.style.left = (e.clientX - startX) + 'px';
+                    piece.style.top = (e.clientY - startY) + 'px';
+                }
+
+                function stopDragging() {
+                    piece.classList.remove('dragging');
+                    document.removeEventListener('mousemove', movePiece);
+                    document.removeEventListener('mouseup', stopDragging);
+                    checkPlacement(piece);
+                }
+
+                document.addEventListener('mousemove', movePiece);
+                document.addEventListener('mouseup', stopDragging);
             }
-        }, 1000);
-    }
-    startTimer();
-
-    // Drag and Drop functions
-    function allowDrop(event) {
-        event.preventDefault();
-    }
-
-    function drag(event) {
-        event.dataTransfer.setData("text", event.target.id);
-    }
-
-    function drop(event) {
-        event.preventDefault();
-        let draggedElementId = event.dataTransfer.getData("text");
-        let targetId = event.target.id;
-
-        // Define correct placements
-        const correctPlacements = {
-            barPiece: "barChart",
-            piePiece: "pieChart",
-            linePiece: "lineChart",
-            areaPiece: "areaChart"
-        };
-
-        if (correctPlacements[draggedElementId] === targetId) {
-            event.target.appendChild(document.getElementById(draggedElementId));
-            document.getElementById(draggedElementId).classList.add('placed'); // visually indicate correct placement
-            checkWinCondition();
-        } else {
-            alert("Incorrect placement! Try again.");
         }
-    }
 
-    // Check if all pieces are correctly placed
-    function checkWinCondition() {
-        let placedPieces = document.querySelectorAll('.placed');
-        if (placedPieces.length === 4) {
-            clearInterval(timer);
-            alert("Congratulations! You fixed all the data! You won Infinigrow Swag!");
-            resetGame();
+        function checkPlacement(piece) {
+            // Logic for checking if the draggable piece is in the correct gap
         }
-    }
 
-    // Reset game
-    function resetGame() {
-        document.querySelectorAll('.draggable').forEach(piece => {
-            piece.classList.remove('placed');
-            document.body.appendChild(piece); // return pieces to initial position
-        });
-        timeLeft = 30;
-        document.getElementById('timeLeft').innerText = timeLeft;
-        startTimer();
-    }
-</script>
+        function startTimer() {
+            let timeLeft = 30;
+            const timer = document.getElementById('timer');
+            
+            const interval = setInterval(() => {
+                timeLeft--;
+                timer.style.width = `${(timeLeft/30) * 100}%`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    endGame();
+                }
+            }, 1000);
+        }
 
+        window.onload = initGame;
+    </script>
 </body>
 </html>
