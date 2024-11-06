@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fix the Messy Data</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 16px;
+            font-family: system-ui, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #1a1a1a;
+        }
+
+        .timer-bar {
+            height: 6px;
+            background: #eee;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .timer-progress {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #4CAF50, #2196F3);
+            transition: width 1s linear;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .chart-container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            height: 200px;
+            border: 1px solid #e0e0e0;
+            position: relative;
+        }
+
+        .draggable {
+            position: absolute;
+            cursor: grab;
+            padding: 4px;
+            background: #ffc107;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>Fix the Messy Data</h1>
+        </div>
+
+        <div class="timer-bar">
+            <div class="timer-progress" id="timer"></div>
+        </div>
+
+        <div class="dashboard">
+            <div class="chart-container">
+                <canvas id="barChart"></canvas>
+                <div class="draggable" id="barPiece" draggable="true" style="top: 50%; left: 30%;">Missing Bar</div>
+            </div>
+            <div class="chart-container">
+                <canvas id="pieChart"></canvas>
+                <div class="draggable" id="piePiece" draggable="true" style="top: 30%; left: 50%;">Missing Slice</div>
+            </div>
+            <div class="chart-container">
+                <canvas id="lineChart"></canvas>
+                <div class="draggable" id="linePiece" draggable="true" style="top: 40%; left: 40%;">Missing Point</div>
+            </div>
+            <div class="chart-container">
+                <canvas id="areaChart"></canvas>
+                <div class="draggable" id="areaPiece" draggable="true" style="top: 20%; left: 30%;">Missing Area</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function initGame() {
+            // Charts setup
+            new Chart(document.getElementById('barChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [65, 59, 80, 0, 56, 55], // Missing value for April
+                        backgroundColor: '#2196F3'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('pieChart'), {
+                type: 'pie',
+                data: {
+                    labels: ['Direct', 'Social', 'Email'],
+                    datasets: [{
+                        data: [35, 0, 20], // Missing value for Social
+                        backgroundColor: ['#4CAF50', 'rgba(33, 150, 243, 0.1)', '#FF9800'],
+                        borderColor: ['#4CAF50', '#2196F3', '#FF9800'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('lineChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Conversion',
+                        data: [12, 19, 0, 15, 22, 13], // Missing value for March
+                        borderColor: '#FF9800',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('areaChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Engagement',
+                        data: [45, 59, 80, 0, 66, 85], // Missing value between March and April
+                        borderColor: '#9C27B0',
+                        backgroundColor: 'rgba(156,39,176,0.2)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            setupDragAndDrop();
+            startTimer();
+        }
+
+        function setupDragAndDrop() {
+            const draggables = document.querySelectorAll('.draggable');
+            const chartContainers = document.querySelectorAll('.chart-container');
+
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', () => {
+                    draggable.classList.add('dragging');
+                });
+
+                draggable.addEventListener('dragend', () => {
+                    draggable.classList.remove('dragging');
+                });
+            });
+
+            chartContainers.forEach(container => {
+                container.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    const draggable = document.querySelector('.dragging');
+                    container.appendChild(draggable);
+                });
+            });
+        }
+
+        function startTimer() {
+            let timeLeft = 30;
+            const timer = document.getElementById('timer');
+            
+            const interval = setInterval(() => {
+                timeLeft--;
+                timer.style.width = `${(timeLeft/30) * 100}%`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    alert('Time is up! Try again.');
+                }
+            }, 1000);
+        }
+
+        window.onload = initGame;
+    </script>
+</body>
+</html>
