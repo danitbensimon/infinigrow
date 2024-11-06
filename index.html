@@ -1,220 +1,142 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Fix the Messy Data</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
-    <style>
-        body {
-            margin: 0;
-            padding: 16px;
-            font-family: system-ui, sans-serif;
-            background: #f0f2f5;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-
-        .game-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 16px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 12px;
-        }
-
-        h1 {
-            margin: 0;
-            font-size: 24px;
-            color: #1a1a1a;
-        }
-
-        .timer-bar {
-            height: 6px;
-            background: #eee;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 12px;
-        }
-
-        .timer-progress {
-            height: 100%;
-            width: 100%;
-            background: linear-gradient(90deg, #4CAF50, #2196F3);
-            transition: width 1s linear;
-        }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-        }
-
-        .chart-container {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 12px;
-            height: 200px;
-            border: 1px solid #e0e0e0;
-            position: relative;
-        }
-
-        .draggable {
-            position: absolute;
-            cursor: grab;
-            padding: 10px;
-            background: #ffc107;
-            border-radius: 50%;
-            font-size: 14px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drag-and-Drop Puzzle Game</title>
+<style>
+    /* Basic styling */
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    h1 {
+        margin: 20px;
+    }
+    #timer {
+        font-size: 20px;
+        margin: 10px;
+    }
+    .chart-container {
+        display: flex;
+        justify-content: space-around;
+        width: 80%;
+        margin-top: 20px;
+    }
+    .chart {
+        width: 150px;
+        height: 150px;
+        border: 1px solid #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        font-size: 20px;
+        font-weight: bold;
+    }
+    .draggable {
+        cursor: pointer;
+        position: absolute;
+        padding: 10px;
+        background-color: #ffa;
+        border: 1px solid #ccc;
+    }
+</style>
 </head>
 <body>
-    <div class="game-container">
-        <div class="header">
-            <h1>Fix the Messy Data</h1>
-        </div>
 
-        <div class="timer-bar">
-            <div class="timer-progress" id="timer"></div>
-        </div>
+<h1>Fix the Charts Puzzle Game</h1>
+<div id="timer">Time left: <span id="timeLeft">30</span> seconds</div>
 
-        <div class="dashboard">
-            <div class="chart-container" data-correct-piece="barPiece">
-                <canvas id="barChart"></canvas>
-            </div>
-            <div class="chart-container" data-correct-piece="piePiece">
-                <canvas id="pieChart"></canvas>
-            </div>
-            <div class="chart-container" data-correct-piece="linePiece">
-                <canvas id="lineChart"></canvas>
-            </div>
-            <div class="chart-container" data-correct-piece="areaPiece">
-                <canvas id="areaChart"></canvas>
-            </div>
-        </div>
+<div class="chart-container">
+    <!-- Each chart has a placeholder for a missing piece -->
+    <div class="chart" id="barChart" ondrop="drop(event)" ondragover="allowDrop(event)">Bar Chart</div>
+    <div class="chart" id="pieChart" ondrop="drop(event)" ondragover="allowDrop(event)">Pie Chart</div>
+    <div class="chart" id="lineChart" ondrop="drop(event)" ondragover="allowDrop(event)">Line Chart</div>
+    <div class="chart" id="areaChart" ondrop="drop(event)" ondragover="allowDrop(event)">Area Chart</div>
+</div>
 
-        <div class="draggable" id="barPiece" draggable="true" style="top: 500px; left: 50px;">Bar</div>
-        <div class="draggable" id="piePiece" draggable="true" style="top: 500px; left: 150px;">Slice</div>
-        <div class="draggable" id="linePiece" draggable="true" style="top: 500px; left: 250px;">Point</div>
-        <div class="draggable" id="areaPiece" draggable="true" style="top: 500px; left: 350px;">Area</div>
-    </div>
+<!-- Draggable misplaced pieces -->
+<div class="chart-container">
+    <div id="barPiece" class="draggable" draggable="true" ondragstart="drag(event)">Bar Piece</div>
+    <div id="piePiece" class="draggable" draggable="true" ondragstart="drag(event)">Pie Piece</div>
+    <div id="linePiece" class="draggable" draggable="true" ondragstart="drag(event)">Line Piece</div>
+    <div id="areaPiece" class="draggable" draggable="true" ondragstart="drag(event)">Area Piece</div>
+</div>
 
-    <script>
-        function initGame() {
-            // Bar Chart with a missing bar for April
-            new Chart(document.getElementById('barChart'), {
-                type: 'bar',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [{
-                        label: 'Revenue',
-                        data: [65, 59, 80, null, 56, 55], // Missing bar for April
-                        backgroundColor: ['#2196F3', '#2196F3', '#2196F3', 'rgba(0, 0, 0, 0)', '#2196F3', '#2196F3']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
+<!-- JavaScript for game logic -->
+<script>
+    let timer;
+    let timeLeft = 30;
 
-            // Pie Chart with a missing slice for Social
-            new Chart(document.getElementById('pieChart'), {
-                type: 'pie',
-                data: {
-                    labels: ['Direct', 'Social', 'Email'],
-                    datasets: [{
-                        data: [35, 20, null], // Missing slice for Email
-                        backgroundColor: ['#4CAF50', '#FF9800', 'rgba(0, 0, 0, 0)'],
-                        borderColor: ['#4CAF50', '#FF9800', '#2196F3'],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
+    // Start the timer
+    function startTimer() {
+        timer = setInterval(function() {
+            timeLeft--;
+            document.getElementById('timeLeft').innerText = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                alert("Time's up! Try again.");
+                resetGame();
+            }
+        }, 1000);
+    }
+    startTimer();
 
-            // Line Chart with a missing data point for March
-            new Chart(document.getElementById('lineChart'), {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [{
-                        label: 'Conversion',
-                        data: [12, 19, null, 15, 22, 13], // Missing point for March
-                        borderColor: '#FF9800',
-                        pointBackgroundColor: ['#FF9800', '#FF9800', 'rgba(0, 0, 0, 0)', '#FF9800', '#FF9800', '#FF9800'],
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
+    // Drag and Drop functions
+    function allowDrop(event) {
+        event.preventDefault();
+    }
 
-            // Area Chart with a missing section between Mar and Apr
-            new Chart(document.getElementById('areaChart'), {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [{
-                        label: 'Engagement',
-                        data: [45, 59, 80, null, 66, 85], // Missing area between Mar and Apr
-                        borderColor: '#9C27B0',
-                        backgroundColor: ['rgba(156,39,176,0.2)', 'rgba(156,39,176,0.2)', 'rgba(156,39,176,0.2)', 'rgba(0, 0, 0, 0)', 'rgba(156,39,176,0.2)', 'rgba(156,39,176,0.2)'],
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
+    function drag(event) {
+        event.dataTransfer.setData("text", event.target.id);
+    }
 
-            setupDragAndDrop();
-            startTimer();
+    function drop(event) {
+        event.preventDefault();
+        let draggedElementId = event.dataTransfer.getData("text");
+        let targetId = event.target.id;
+
+        // Define correct placements
+        const correctPlacements = {
+            barPiece: "barChart",
+            piePiece: "pieChart",
+            linePiece: "lineChart",
+            areaPiece: "areaChart"
+        };
+
+        if (correctPlacements[draggedElementId] === targetId) {
+            event.target.appendChild(document.getElementById(draggedElementId));
+            document.getElementById(draggedElementId).classList.add('placed'); // visually indicate correct placement
+            checkWinCondition();
+        } else {
+            alert("Incorrect placement! Try again.");
         }
+    }
 
-        function setupDragAndDrop() {
-            const draggables = document.querySelectorAll('.draggable');
-            const chartContainers = document.querySelectorAll('.chart-container');
+    // Check if all pieces are correctly placed
+    function checkWinCondition() {
+        let placedPieces = document.querySelectorAll('.placed');
+        if (placedPieces.length === 4) {
+            clearInterval(timer);
+            alert("Congratulations! You fixed all the data! You won Infinigrow Swag!");
+            resetGame();
+        }
+    }
 
-            draggables.forEach(draggable => {
-                draggable.addEventListener('dragstart', () => {
-                    draggable.classList.add('dragging');
-                });
+    // Reset game
+    function resetGame() {
+        document.querySelectorAll('.draggable').forEach(piece => {
+            piece.classList.remove('placed');
+            document.body.appendChild(piece); // return pieces to initial position
+        });
+        timeLeft = 30;
+        document.getElementById('timeLeft').innerText = timeLeft;
+        startTimer();
+    }
+</script>
 
-                draggable.addEventListener('dragend', () => {
-                    draggable.classList.remove('dragging');
-                });
-            });
-
-            chartContainers.forEach(cont
+</body>
+</html>
