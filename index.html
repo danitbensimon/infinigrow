@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Fix the Messy Data</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -58,52 +58,54 @@
             background: #f8f9fa;
             border-radius: 8px;
             padding: 12px;
-            height: 200px;
+            height: 250px;
             border: 1px solid #e0e0e0;
             position: relative;
         }
 
         /* Draggable missing pieces styled */
         .missing-piece {
-            width: 60px;
-            height: 60px;
             position: absolute;
             cursor: grab;
             z-index: 100;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 2px solid #ddd;
+            transition: transform 0.2s;
         }
 
         .missing-bar-piece {
             width: 30px;
             height: 80px;
             background: #2196F3;
-            left: 50%;
-            top: 70%;
+            left: 20px;
+            top: 50px;
         }
 
         .missing-pie-piece {
-            background: #2196F3;
+            width: 60px;
+            height: 60px;
+            background: #FF9800;
             clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 50%);
-            left: 60%;
-            top: 30%;
+            left: 250px;
+            top: -30px;
         }
 
         .missing-line-piece {
             width: 80px;
-            height: 40px;
-            left: 55%;
-            top: 55%;
-        }
-
-        .missing-line-piece::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            width: 100%;
             height: 2px;
             background: #FF9800;
+            left: 20px;
+            top: 150px;
             transform: rotate(30deg);
-            transform-origin: left center;
+        }
+
+        .missing-area-piece {
+            width: 80px;
+            height: 50px;
+            background: rgba(156,39,176,0.2);
+            border-top: 2px solid #9C27B0;
+            left: 60px;
+            top: 200px;
         }
 
         /* Hover and dragging effects */
@@ -146,9 +148,10 @@
                 <div class="missing-piece missing-line-piece" data-type="line"></div>
             </div>
 
-            <!-- Area Chart -->
+            <!-- Area Chart with missing piece -->
             <div class="chart-container">
                 <canvas id="engagementChart"></canvas>
+                <div class="missing-piece missing-area-piece" data-type="area"></div>
             </div>
         </div>
     </div>
@@ -270,25 +273,7 @@
         }
 
         function checkPlacement(piece) {
-            // Logic for snapping into correct position if in the right spot
-        }
-
-        function startTimer() {
-            let timeLeft = 30;
-            const timer = document.getElementById('timer');
-            
-            const interval = setInterval(() => {
-                timeLeft--;
-                timer.style.width = `${(timeLeft / 30) * 100}%`;
-                
-                if (timeLeft <= 0) {
-                    clearInterval(interval);
-                    endGame();
-                }
-            }, 1000);
-        }
-
-        window.onload = initGame;
-    </script>
-</body>
-</html>
+            const targetPositions = {
+                bar: { x: 120, y: 80 },
+                pie: { x: 190, y: 50 },
+                line: { x: 130, y: 160
