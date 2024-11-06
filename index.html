@@ -66,9 +66,9 @@
         .draggable {
             position: absolute;
             cursor: grab;
-            padding: 4px;
+            padding: 10px;
             background: #ffc107;
-            border-radius: 4px;
+            border-radius: 50%;
             font-size: 14px;
         }
     </style>
@@ -98,23 +98,23 @@
             </div>
         </div>
 
-        <div class="draggable" id="barPiece" draggable="true">Missing Bar</div>
-        <div class="draggable" id="piePiece" draggable="true">Missing Slice</div>
-        <div class="draggable" id="linePiece" draggable="true">Missing Point</div>
-        <div class="draggable" id="areaPiece" draggable="true">Missing Area</div>
+        <div class="draggable" id="barPiece" draggable="true" style="top: 500px; left: 50px;">Bar</div>
+        <div class="draggable" id="piePiece" draggable="true" style="top: 500px; left: 150px;">Slice</div>
+        <div class="draggable" id="linePiece" draggable="true" style="top: 500px; left: 250px;">Point</div>
+        <div class="draggable" id="areaPiece" draggable="true" style="top: 500px; left: 350px;">Area</div>
     </div>
 
     <script>
         function initGame() {
-            // Charts setup
+            // Bar Chart with a missing bar for April
             new Chart(document.getElementById('barChart'), {
                 type: 'bar',
                 data: {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                     datasets: [{
                         label: 'Revenue',
-                        data: [65, 59, 80, null, 56, 55], // Missing value for April
-                        backgroundColor: ['#2196F3', '#2196F3', '#2196F3', '#ffcc00', '#2196F3', '#2196F3']
+                        data: [65, 59, 80, null, 56, 55], // Missing bar for April
+                        backgroundColor: ['#2196F3', '#2196F3', '#2196F3', 'rgba(0, 0, 0, 0)', '#2196F3', '#2196F3']
                     }]
                 },
                 options: {
@@ -128,13 +128,14 @@
                 }
             });
 
+            // Pie Chart with a missing slice for Social
             new Chart(document.getElementById('pieChart'), {
                 type: 'pie',
                 data: {
                     labels: ['Direct', 'Social', 'Email'],
                     datasets: [{
-                        data: [35, null, 20], // Missing value for Social
-                        backgroundColor: ['#4CAF50', '#ffcc00', '#FF9800'],
+                        data: [35, null, 20], // Missing slice for Social
+                        backgroundColor: ['#4CAF50', 'rgba(0, 0, 0, 0)', '#FF9800'],
                         borderColor: ['#4CAF50', '#2196F3', '#FF9800'],
                         borderWidth: 1
                     }]
@@ -150,15 +151,16 @@
                 }
             });
 
+            // Line Chart with a missing data point for March
             new Chart(document.getElementById('lineChart'), {
                 type: 'line',
                 data: {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                     datasets: [{
                         label: 'Conversion',
-                        data: [12, 19, null, 15, 22, 13], // Missing value for March
+                        data: [12, 19, null, 15, 22, 13], // Missing point for March
                         borderColor: '#FF9800',
-                        pointBackgroundColor: ['#FF9800', '#FF9800', '#ffcc00', '#FF9800', '#FF9800', '#FF9800'],
+                        pointBackgroundColor: ['#FF9800', '#FF9800', 'rgba(0, 0, 0, 0)', '#FF9800', '#FF9800', '#FF9800'],
                         tension: 0.4
                     }]
                 },
@@ -173,15 +175,16 @@
                 }
             });
 
+            // Area Chart with a missing section between Mar and Apr
             new Chart(document.getElementById('areaChart'), {
                 type: 'line',
                 data: {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                     datasets: [{
                         label: 'Engagement',
-                        data: [45, 59, 80, null, 66, 85], // Missing value between March and April
+                        data: [45, 59, 80, null, 66, 85], // Missing area between Mar and Apr
                         borderColor: '#9C27B0',
-                        backgroundColor: ['rgba(156,39,176,0.2)', 'rgba(156,39,176,0.2)', 'rgba(156,39,176,0.2)', 'rgba(255,204,0,0.2)', 'rgba(156,39,176,0.2)', 'rgba(156,39,176,0.2)'],
+                        backgroundColor: ['rgba(156,39,176,0.2)', 'rgba(156,39,176,0.2)', 'rgba(156,39,176,0.2)', 'rgba(0, 0, 0, 0)', 'rgba(156,39,176,0.2)', 'rgba(156,39,176,0.2)'],
                         fill: true
                     }]
                 },
