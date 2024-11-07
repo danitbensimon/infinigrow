@@ -35,6 +35,21 @@
             color: #1a1a1a;
         }
 
+        .timer-bar {
+            height: 6px;
+            background: #eee;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .timer-progress {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #4CAF50, #2196F3);
+            transition: width 1s linear;
+        }
+
         .dashboard {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -60,30 +75,38 @@
         }
 
         .missing-bar-piece {
-            width: 40px;
-            height: 160px;
+            width: 80px;
+            height: 220px;
             background: #2196F3;
+            left: 300px;
+            top: 20px;
         }
 
         .missing-pie-piece {
-            width: 80px;
-            height: 80px;
+            width: 120px;
+            height: 120px;
             background: #FF9800;
             clip-path: polygon(50% 50%, 0% 0%, 100% 0%);
+            left: 450px;
+            top: 300px;
         }
 
         .missing-line-piece {
-            width: 80px;
+            width: 150px;
             height: 4px;
             background: #FF9800;
             transform: rotate(45deg);
+            left: 500px;
+            top: 150px;
         }
 
         .missing-area-piece {
-            width: 120px;
-            height: 70px;
+            width: 160px;
+            height: 90px;
             background: rgba(156, 39, 176, 0.2);
             border-top: 2px solid #9C27B0;
+            left: 550px;
+            top: 100px;
         }
 
         .missing-piece.dragging {
@@ -98,169 +121,18 @@
             <h1>Fix the Messy Data</h1>
         </div>
 
+        <div class="timer-bar">
+            <div class="timer-progress" id="timer"></div>
+        </div>
+
         <div class="dashboard">
             <div class="chart-container">
                 <canvas id="barChart"></canvas>
-                <div class="missing-piece missing-bar-piece" data-type="bar" style="left: 10px; top: 150px;"></div>
+                <div class="missing-piece missing-pie-piece" data-type="pie"></div>
             </div>
             <div class="chart-container">
                 <canvas id="pieChart"></canvas>
-                <div class="missing-piece missing-pie-piece" data-type="pie" style="left: 10px; top: 10px;"></div>
+                <div class="missing-piece missing-area-piece" data-type="area"></div>
             </div>
             <div class="chart-container">
-                <canvas id="lineChart"></canvas>
-                <div class="missing-piece missing-line-piece" data-type="line" style="left: 10px; top: 200px;"></div>
-            </div>
-            <div class="chart-container">
-                <canvas id="areaChart"></canvas>
-                <div class="missing-piece missing-area-piece" data-type="area" style="left: 10px; top: 220px;"></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let charts = {};
-
-        document.addEventListener('DOMContentLoaded', initGame);
-
-        function initGame() {
-            createCharts();
-            initDragAndDrop();
-        }
-
-        function createCharts() {
-            charts.bar = new Chart(document.getElementById('barChart'), {
-                type: 'bar',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-                    datasets: [{
-                        label: 'Revenue',
-                        data: [65, 59, null, 81, 56],
-                        backgroundColor: '#2196F3'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
-                }
-            });
-
-            charts.pie = new Chart(document.getElementById('pieChart'), {
-                type: 'pie',
-                data: {
-                    labels: ['Direct', 'Social', 'Email'],
-                    datasets: [{
-                        data: [35, null, 20],
-                        backgroundColor: ['#4CAF50', 'transparent', '#FF9800']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
-                }
-            });
-
-            charts.line = new Chart(document.getElementById('lineChart'), {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-                    datasets: [{
-                        label: 'Conversion',
-                        data: [12, 19, null, 15, 22],
-                        borderColor: '#FF9800',
-                        tension: 0.4,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
-                }
-            });
-
-            charts.area = new Chart(document.getElementById('areaChart'), {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-                    datasets: [{
-                        label: 'Engagement',
-                        data: [45, 59, null, 75, 66],
-                        borderColor: '#9C27B0',
-                        backgroundColor: 'rgba(156,39,176,0.2)',
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
-
-        function initDragAndDrop() {
-            const pieces = document.querySelectorAll('.missing-piece');
-
-            pieces.forEach(piece => {
-                piece.addEventListener('mousedown', startDragging);
-            });
-
-            function startDragging(e) {
-                const piece = this;
-                piece.classList.add('dragging');
-
-                const startX = e.clientX - piece.offsetLeft;
-                const startY = e.clientY - piece.offsetTop;
-
-                function movePiece(e) {
-                    piece.style.left = (e.clientX - startX) + 'px';
-                    piece.style.top = (e.clientY - startY) + 'px';
-                }
-
-                function stopDragging() {
-                    piece.classList.remove('dragging');
-                    document.removeEventListener('mousemove', movePiece);
-                    document.removeEventListener('mouseup', stopDragging);
-                    checkPlacement(piece);
-                }
-
-                document.addEventListener('mousemove', movePiece);
-                document.addEventListener('mouseup', stopDragging);
-            }
-        }
-
-        function checkPlacement(piece) {
-            // Snap effect: snap the piece into the right position if it is close enough
-            const snapThreshold = 30;
-
-            // Correct positions for snapping (adjusted to match gaps)
-            const targetPositions = {
-                bar: { x: 90, y: 80 },
-                pie: { x: 230, y: 110 },
-                line: { x: 140, y: 140 },
-                area: { x: 70, y: 170 }
-            };
-
-            const type = piece.getAttribute('data-type');
-            const target = targetPositions[type];
-
-            const pieceRect = piece.getBoundingClientRect();
-            const gameContainerRect = document.querySelector('.game-container').getBoundingClientRect();
-
-            // Calculate positions relative to the game container
-            const offsetX = pieceRect.left - gameContainerRect.left;
-            const offsetY = pieceRect.top - gameContainerRect.top;
-
-            // Snap if within proximity
-            if (Math.abs(offsetX - target.x) < snapThreshold && Math.abs(offsetY - target.y) < snapThreshold) {
-                piece.style.left = target.x + 'px';
-                piece.style.top = target.y + 'px';
-                piece.style.cursor = 'default';  // Change cursor to indicate correct placement
-            }
-        }
-    </script>
-</body>
-</html>
+ 
