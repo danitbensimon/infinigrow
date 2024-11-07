@@ -61,37 +61,29 @@
 
         .missing-bar-piece {
             width: 40px;
-            height: 130px;
+            height: 160px;
             background: #2196F3;
-            left: 30px;
-            top: 80px;
         }
 
         .missing-pie-piece {
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             background: #FF9800;
-            clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 50%);
-            left: 300px;
-            top: -20px;
+            clip-path: polygon(50% 50%, 0% 0%, 100% 0%);
         }
 
         .missing-line-piece {
             width: 80px;
-            height: 2px;
+            height: 4px;
             background: #FF9800;
-            left: 150px;
-            top: 120px;
-            transform: rotate(30deg);
+            transform: rotate(45deg);
         }
 
         .missing-area-piece {
-            width: 100px;
-            height: 60px;
+            width: 120px;
+            height: 70px;
             background: rgba(156, 39, 176, 0.2);
             border-top: 2px solid #9C27B0;
-            left: 40px;
-            top: 230px;
         }
 
         .missing-piece.dragging {
@@ -109,19 +101,19 @@
         <div class="dashboard">
             <div class="chart-container">
                 <canvas id="barChart"></canvas>
-                <div class="missing-piece missing-bar-piece" data-type="bar"></div>
+                <div class="missing-piece missing-bar-piece" data-type="bar" style="left: 10px; top: 150px;"></div>
             </div>
             <div class="chart-container">
                 <canvas id="pieChart"></canvas>
-                <div class="missing-piece missing-pie-piece" data-type="pie"></div>
+                <div class="missing-piece missing-pie-piece" data-type="pie" style="left: 10px; top: 10px;"></div>
             </div>
             <div class="chart-container">
                 <canvas id="lineChart"></canvas>
-                <div class="missing-piece missing-line-piece" data-type="line"></div>
+                <div class="missing-piece missing-line-piece" data-type="line" style="left: 10px; top: 200px;"></div>
             </div>
             <div class="chart-container">
                 <canvas id="areaChart"></canvas>
-                <div class="missing-piece missing-area-piece" data-type="area"></div>
+                <div class="missing-piece missing-area-piece" data-type="area" style="left: 10px; top: 220px;"></div>
             </div>
         </div>
     </div>
@@ -241,15 +233,15 @@
         }
 
         function checkPlacement(piece) {
-            // Snap effect: implement when piece is close to correct spot
+            // Snap effect: snap the piece into the right position if it is close enough
             const snapThreshold = 30;
 
-            // Dummy values for target positions (in a real implementation, this would be calculated)
+            // Correct positions for snapping (adjusted to match gaps)
             const targetPositions = {
-                bar: { x: 180, y: 80 },
-                pie: { x: 290, y: 90 },
-                line: { x: 200, y: 120 },
-                area: { x: 100, y: 200 }
+                bar: { x: 90, y: 80 },
+                pie: { x: 230, y: 110 },
+                line: { x: 140, y: 140 },
+                area: { x: 70, y: 170 }
             };
 
             const type = piece.getAttribute('data-type');
