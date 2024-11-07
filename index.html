@@ -60,11 +60,11 @@
         }
 
         .missing-bar-piece {
-            width: 30px;
-            height: 120px;
+            width: 40px;
+            height: 130px;
             background: #2196F3;
-            left: 20px;
-            top: 50px;
+            left: 30px;
+            top: 80px;
         }
 
         .missing-pie-piece {
@@ -72,26 +72,26 @@
             height: 60px;
             background: #FF9800;
             clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 50%);
-            left: 250px;
-            top: -30px;
+            left: 300px;
+            top: -20px;
         }
 
         .missing-line-piece {
             width: 80px;
             height: 2px;
             background: #FF9800;
-            left: 20px;
-            top: 150px;
+            left: 150px;
+            top: 120px;
             transform: rotate(30deg);
         }
 
         .missing-area-piece {
-            width: 80px;
-            height: 50px;
+            width: 100px;
+            height: 60px;
             background: rgba(156, 39, 176, 0.2);
             border-top: 2px solid #9C27B0;
-            left: 60px;
-            top: 200px;
+            left: 40px;
+            top: 230px;
         }
 
         .missing-piece.dragging {
@@ -241,7 +241,33 @@
         }
 
         function checkPlacement(piece) {
-            // This function can be extended to include snapping or validation logic
+            // Snap effect: implement when piece is close to correct spot
+            const snapThreshold = 30;
+
+            // Dummy values for target positions (in a real implementation, this would be calculated)
+            const targetPositions = {
+                bar: { x: 180, y: 80 },
+                pie: { x: 290, y: 90 },
+                line: { x: 200, y: 120 },
+                area: { x: 100, y: 200 }
+            };
+
+            const type = piece.getAttribute('data-type');
+            const target = targetPositions[type];
+
+            const pieceRect = piece.getBoundingClientRect();
+            const gameContainerRect = document.querySelector('.game-container').getBoundingClientRect();
+
+            // Calculate positions relative to the game container
+            const offsetX = pieceRect.left - gameContainerRect.left;
+            const offsetY = pieceRect.top - gameContainerRect.top;
+
+            // Snap if within proximity
+            if (Math.abs(offsetX - target.x) < snapThreshold && Math.abs(offsetY - target.y) < snapThreshold) {
+                piece.style.left = target.x + 'px';
+                piece.style.top = target.y + 'px';
+                piece.style.cursor = 'default';  // Change cursor to indicate correct placement
+            }
         }
     </script>
 </body>
