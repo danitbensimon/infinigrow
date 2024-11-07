@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fix the Messy Data</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             margin: 0;
             padding: 16px;
-            font-family: system-ui, sans-serif;
+            font-family: Arial, sans-serif;
             background: #f0f2f5;
             min-height: 100vh;
             box-sizing: border-box;
@@ -19,33 +21,18 @@
             background: white;
             padding: 16px;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .header {
             text-align: center;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
 
         h1 {
             margin: 0;
             font-size: 24px;
             color: #1a1a1a;
-        }
-
-        .timer-bar {
-            height: 6px;
-            background: #eee;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 12px;
-        }
-
-        .timer-progress {
-            height: 100%;
-            width: 100%;
-            background: linear-gradient(90deg, #4CAF50, #2196F3);
-            transition: width 1s linear;
         }
 
         .dashboard {
@@ -58,24 +45,23 @@
             background: #f8f9fa;
             border-radius: 8px;
             padding: 12px;
-            height: 250px;
+            height: 300px;
             border: 1px solid #e0e0e0;
             position: relative;
         }
 
-        /* Draggable missing pieces styled */
         .missing-piece {
             position: absolute;
             cursor: grab;
             z-index: 100;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             border: 2px solid #ddd;
             transition: transform 0.2s;
         }
 
         .missing-bar-piece {
             width: 30px;
-            height: 80px;
+            height: 120px;
             background: #2196F3;
             left: 20px;
             top: 50px;
@@ -102,15 +88,10 @@
         .missing-area-piece {
             width: 80px;
             height: 50px;
-            background: rgba(156,39,176,0.2);
+            background: rgba(156, 39, 176, 0.2);
             border-top: 2px solid #9C27B0;
             left: 60px;
             top: 200px;
-        }
-
-        /* Hover and dragging effects */
-        .missing-piece:hover {
-            filter: brightness(1.1);
         }
 
         .missing-piece.dragging {
@@ -125,32 +106,21 @@
             <h1>Fix the Messy Data</h1>
         </div>
 
-        <div class="timer-bar">
-            <div class="timer-progress" id="timer"></div>
-        </div>
-
         <div class="dashboard">
-            <!-- Bar Chart with missing piece -->
             <div class="chart-container">
-                <canvas id="revenueChart"></canvas>
+                <canvas id="barChart"></canvas>
                 <div class="missing-piece missing-bar-piece" data-type="bar"></div>
             </div>
-
-            <!-- Pie Chart with missing piece -->
             <div class="chart-container">
-                <canvas id="usersChart"></canvas>
+                <canvas id="pieChart"></canvas>
                 <div class="missing-piece missing-pie-piece" data-type="pie"></div>
             </div>
-
-            <!-- Line Chart with missing piece -->
             <div class="chart-container">
-                <canvas id="conversionChart"></canvas>
+                <canvas id="lineChart"></canvas>
                 <div class="missing-piece missing-line-piece" data-type="line"></div>
             </div>
-
-            <!-- Area Chart with missing piece -->
             <div class="chart-container">
-                <canvas id="engagementChart"></canvas>
+                <canvas id="areaChart"></canvas>
                 <div class="missing-piece missing-area-piece" data-type="area"></div>
             </div>
         </div>
@@ -159,21 +129,21 @@
     <script>
         let charts = {};
 
+        document.addEventListener('DOMContentLoaded', initGame);
+
         function initGame() {
             createCharts();
             initDragAndDrop();
-            startTimer();
         }
 
         function createCharts() {
-            // Bar chart
-            charts.revenue = new Chart(document.getElementById('revenueChart'), {
+            charts.bar = new Chart(document.getElementById('barChart'), {
                 type: 'bar',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
                     datasets: [{
                         label: 'Revenue',
-                        data: [65, 59, null, 81, 56, 55], // Gap in March
+                        data: [65, 59, null, 81, 56],
                         backgroundColor: '#2196F3'
                     }]
                 },
@@ -184,8 +154,95 @@
                 }
             });
 
-            // Pie chart with missing slice
-            charts.users = new Chart(document.getElementById('usersChart'), {
+            charts.pie = new Chart(document.getElementById('pieChart'), {
                 type: 'pie',
                 data: {
-                    labels: ['Direct',
+                    labels: ['Direct', 'Social', 'Email'],
+                    datasets: [{
+                        data: [35, null, 20],
+                        backgroundColor: ['#4CAF50', 'transparent', '#FF9800']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            charts.line = new Chart(document.getElementById('lineChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                    datasets: [{
+                        label: 'Conversion',
+                        data: [12, 19, null, 15, 22],
+                        borderColor: '#FF9800',
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            charts.area = new Chart(document.getElementById('areaChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                    datasets: [{
+                        label: 'Engagement',
+                        data: [45, 59, null, 75, 66],
+                        borderColor: '#9C27B0',
+                        backgroundColor: 'rgba(156,39,176,0.2)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function initDragAndDrop() {
+            const pieces = document.querySelectorAll('.missing-piece');
+
+            pieces.forEach(piece => {
+                piece.addEventListener('mousedown', startDragging);
+            });
+
+            function startDragging(e) {
+                const piece = this;
+                piece.classList.add('dragging');
+
+                const startX = e.clientX - piece.offsetLeft;
+                const startY = e.clientY - piece.offsetTop;
+
+                function movePiece(e) {
+                    piece.style.left = (e.clientX - startX) + 'px';
+                    piece.style.top = (e.clientY - startY) + 'px';
+                }
+
+                function stopDragging() {
+                    piece.classList.remove('dragging');
+                    document.removeEventListener('mousemove', movePiece);
+                    document.removeEventListener('mouseup', stopDragging);
+                    checkPlacement(piece);
+                }
+
+                document.addEventListener('mousemove', movePiece);
+                document.addEventListener('mouseup', stopDragging);
+            }
+        }
+
+        function checkPlacement(piece) {
+            // This function can be extended to include snapping or validation logic
+        }
+    </script>
+</body>
+</html>
