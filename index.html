@@ -4,135 +4,350 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fix the Messy Data</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         body {
             margin: 0;
-            padding: 16px;
+            padding: 20px;
             font-family: Arial, sans-serif;
             background: #f0f2f5;
-            min-height: 100vh;
-            box-sizing: border-box;
         }
-
-        .game-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 16px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
         .header {
             text-align: center;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
-
         h1 {
-            margin: 0;
-            font-size: 24px;
             color: #1a1a1a;
+            font-size: 28px;
         }
-
-        .timer-bar {
-            height: 6px;
-            background: #eee;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 12px;
+        .timer {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
         }
-
-        .timer-progress {
-            height: 100%;
+        .progress-bar {
             width: 100%;
+            height: 10px;
+            background: #eee;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .progress {
+            height: 100%;
             background: linear-gradient(90deg, #4CAF50, #2196F3);
+            border-radius: 5px;
             transition: width 1s linear;
         }
-
         .dashboard {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
-
         .chart-container {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 12px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
             height: 300px;
-            border: 1px solid #e0e0e0;
             position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-
         .missing-piece {
             position: absolute;
-            cursor: grab;
-            z-index: 100;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border: 2px solid #ddd;
+            cursor: move;
+            z-index: 10;
             transition: transform 0.2s;
+            user-select: none;
+            touch-action: none;
         }
-
-        .missing-bar-piece {
-            width: 80px;
-            height: 220px;
-            background: #2196F3;
-            left: 300px;
-            top: 20px;
+        .missing-piece:hover {
+            transform: scale(1.05);
         }
-
-        .missing-pie-piece {
-            width: 120px;
-            height: 120px;
-            background: #FF9800;
-            clip-path: polygon(50% 50%, 0% 0%, 100% 0%);
-            left: 450px;
-            top: 300px;
-        }
-
-        .missing-line-piece {
-            width: 150px;
-            height: 4px;
-            background: #FF9800;
-            transform: rotate(45deg);
-            left: 500px;
-            top: 150px;
-        }
-
-        .missing-area-piece {
-            width: 160px;
-            height: 90px;
-            background: rgba(156, 39, 176, 0.2);
-            border-top: 2px solid #9C27B0;
-            left: 550px;
-            top: 100px;
-        }
-
         .missing-piece.dragging {
             opacity: 0.8;
-            cursor: grabbing;
+        }
+        #missingPiePiece {
+            width: 80px;
+            height: 80px;
+            background: #FF6384;
+            clip-path: polygon(50% 50%, 100% 0%, 50% 0%);
+            right: 20px;
+            top: 20px;
+        }
+        #missingBarPiece {
+            width: 40px;
+            height: 150px;
+            background: #2196F3;
+            left: 20px;
+            top: 20px;
+        }
+        #missingLinePiece {
+            width: 100px;
+            height: 6px;
+            background: #4CAF50;
+            transform: rotate(45deg);
+            right: 20px;
+            bottom: 20px;
+        }
+        #missingAreaPiece {
+            width: 100px;
+            height: 60px;
+            background: rgba(156, 39, 176, 0.2);
+            border-top: 3px solid #9C27B0;
+            left: 20px;
+            bottom: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <div class="header">
-            <h1>Fix the Messy Data</h1>
+    <div class="header">
+        <h1>Fix the Messy Data!</h1>
+    </div>
+    
+    <div class="timer">
+        Time Remaining: <span id="countdown">30</span>s
+    </div>
+    
+    <div class="progress-bar">
+        <div class="progress" id="progressBar" style="width: 100%"></div>
+    </div>
+    
+    <div class="dashboard">
+        <div class="chart-container" data-chart-type="pie">
+            <canvas id="pieChart"></canvas>
+            <div class="missing-piece" id="missingPiePiece"></div>
         </div>
-
-        <div class="timer-bar">
-            <div class="timer-progress" id="timer"></div>
+        <div class="chart-container" data-chart-type="bar">
+            <canvas id="barChart"></canvas>
+            <div class="missing-piece" id="missingBarPiece"></div>
         </div>
+        <div class="chart-container" data-chart-type="line">
+            <canvas id="lineChart"></canvas>
+            <div class="missing-piece" id="missingLinePiece"></div>
+        </div>
+        <div class="chart-container" data-chart-type="area">
+            <canvas id="areaChart"></canvas>
+            <div class="missing-piece" id="missingAreaPiece"></div>
+        </div>
+    </div>
 
-        <div class="dashboard">
-            <div class="chart-container">
-                <canvas id="barChart"></canvas>
-                <div class="missing-piece missing-pie-piece" data-type="pie"></div>
-            </div>
-            <div class="chart-container">
-                <canvas id="pieChart"></canvas>
-                <div class="missing-piece missing-area-piece" data-type="area"></div>
-            </div>
-            <div class="chart-container">
- 
+    <script>
+        let charts = {};
+        
+        // Initialize charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pie Chart - now with a missing slice
+            charts.pieChart = new Chart(document.getElementById('pieChart'), {
+                type: 'pie',
+                data: {
+                    labels: ['Blue', 'Green'],
+                    datasets: [{
+                        data: [19, 15],
+                        backgroundColor: [
+                            '#36A2EB',
+                            '#4BC0C0'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Bar Chart
+            charts.barChart = new Chart(document.getElementById('barChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                    datasets: [{
+                        label: 'Sales',
+                        data: [65, 59, null, 80, 81],
+                        backgroundColor: '#2196F3'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            // Line Chart
+            charts.lineChart = new Chart(document.getElementById('lineChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                    datasets: [{
+                        label: 'Growth',
+                        data: [12, 19, null, 5, 2],
+                        borderColor: '#4CAF50',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Area Chart
+            charts.areaChart = new Chart(document.getElementById('areaChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                    datasets: [{
+                        label: 'Traffic',
+                        data: [12, 19, null, 5, 2],
+                        fill: true,
+                        backgroundColor: 'rgba(156, 39, 176, 0.2)',
+                        borderColor: '#9C27B0'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        });
+
+        // Timer functionality
+        let timeLeft = 30;
+        const countdownElement = document.getElementById('countdown');
+        const progressBar = document.getElementById('progressBar');
+
+        const timer = setInterval(() => {
+            timeLeft--;
+            countdownElement.textContent = timeLeft;
+            progressBar.style.width = (timeLeft / 30 * 100) + '%';
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                alert('Time\'s up!');
+            }
+        }, 1000);
+
+        // Drag and drop functionality
+        const pieces = document.querySelectorAll('.missing-piece');
+        let draggedPiece = null;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        pieces.forEach(piece => {
+            piece.addEventListener('mousedown', startDragging);
+            piece.addEventListener('touchstart', startDragging, { passive: false });
+        });
+
+        document.addEventListener('mousemove', onDrag);
+        document.addEventListener('touchmove', onDrag, { passive: false });
+        document.addEventListener('mouseup', stopDragging);
+        document.addEventListener('touchend', stopDragging);
+
+        function startDragging(e) {
+            e.preventDefault();
+            draggedPiece = this;
+            
+            const event = e.type === 'mousedown' ? e : e.touches[0];
+            const rect = draggedPiece.getBoundingClientRect();
+            
+            offsetX = event.clientX - rect.left;
+            offsetY = event.clientY - rect.top;
+            
+            draggedPiece.classList.add('dragging');
+        }
+
+        function onDrag(e) {
+            if (!draggedPiece) return;
+            e.preventDefault();
+            
+            const event = e.type === 'mousemove' ? e : e.touches[0];
+            
+            const x = event.clientX - offsetX;
+            const y = event.clientY - offsetY;
+            
+            draggedPiece.style.left = x + 'px';
+            draggedPiece.style.top = y + 'px';
+            draggedPiece.style.position = 'fixed';
+        }
+
+        function stopDragging(e) {
+            if (!draggedPiece) return;
+            
+            const containerElements = document.querySelectorAll('.chart-container');
+            const event = e.type === 'mouseup' ? e : e.changedTouches[0];
+            let dropped = false;
+
+            containerElements.forEach(container => {
+                const rect = container.getBoundingClientRect();
+                if (event.clientX >= rect.left && 
+                    event.clientX <= rect.right && 
+                    event.clientY >= rect.top && 
+                    event.clientY <= rect.bottom) {
+                    
+                    dropped = true;
+                    const chartType = container.dataset.chartType;
+                    const pieceType = draggedPiece.id.replace('missing', '').toLowerCase();
+                    
+                    if (chartType === pieceType.replace('piece', '')) {
+                        // Correct chart - update it
+                        if (chartType === 'pie') {
+                            charts.pieChart.data.labels.push('Red');
+                            charts.pieChart.data.datasets[0].data.push(12);
+                            charts.pieChart.data.datasets[0].backgroundColor.push('#FF6384');
+                        } else if (chartType === 'bar') {
+                            charts.barChart.data.datasets[0].data[2] = 70;
+                        } else if (chartType === 'line') {
+                            charts.lineChart.data.datasets[0].data[2] = 15;
+                        } else if (chartType === 'area') {
+                            charts.areaChart.data.datasets[0].data[2] = 15;
+                        }
+                        charts[chartType + 'Chart'].update();
+                        draggedPiece.style.display = 'none';
+                    } else {
+                        // Wrong chart - return to original position
+                        returnToOriginalPosition(draggedPiece);
+                    }
+                }
+            });
+
+            if (!dropped) {
+                returnToOriginalPosition(draggedPiece);
+            }
+
+            draggedPiece.classList.remove('dragging');
+            draggedPiece = null;
+        }
+
+        function returnToOriginalPosition(piece) {
+            piece.style.position = 'absolute';
+            if (piece.id === 'missingPiePiece') {
+                piece.style.right = '20px';
+                piece.style.top = '20px';
+                piece.style.left = 'auto';
+            } else if (piece.id === 'missingBarPiece') {
+                piece.style.left = '20px';
+                piece.style.top = '20px';
+                piece.style.right = 'auto';
+            } else if (piece.id === 'missingLinePiece') {
+                piece.style.right = '20px';
+                piece.style.bottom = '20px';
+                piece.style.top = 'auto';
+                piece.style.left = 'auto';
+            } else if (piece.id === 'missingAreaPiece') {
+                piece.style.left = '20px';
+                piece.style.bottom = '20px';
+                piece.style.top = 'auto';
+                piece.style.right = 'auto';
+            }
+        }
+    </script>
+</body>
+</html>
